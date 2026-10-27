@@ -19,10 +19,14 @@
 [CmdletBinding()]
 param(
     [string]$Configuration = "Release",
-    [string]$OutputPath = (Join-Path $PSScriptRoot "artifacts")
+    # Defaults to .\artifacts next to this script
+    [string]$OutputPath
 )
 
 $ErrorActionPreference = "Stop"
+# Set here rather than as the parameter default: Windows PowerShell 5.1 leaves $PSScriptRoot empty in
+# parameter defaults when the script is started with "powershell -File".
+if (-not $OutputPath) { $OutputPath = Join-Path $PSScriptRoot "artifacts" }
 
 function Find-MSBuild {
     $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
