@@ -74,8 +74,8 @@ $msbuildRoot = $msbuild -replace '\\MSBuild\\(Current|\d+\.\d+)\\Bin\\.*$', '\MS
 $xdtDll = Get-ChildItem (Join-Path $msbuildRoot "Microsoft\VisualStudio") -Recurse -Filter Microsoft.Web.XmlTransform.dll -ErrorAction SilentlyContinue | Select-Object -First 1
 if (-not $xdtDll) { throw "Microsoft.Web.XmlTransform.dll not found next to MSBuild. Install the ASP.NET and web development workload." }
 Copy-Item $xdtDll.FullName $toolsOut
-Copy-Item (Join-Path $PSScriptRoot "docker\build\cm\unicorn\Unicorn.psm1") $toolsOut
-Copy-Item (Join-Path $PSScriptRoot "docker\build\cm\unicorn\MicroCHAP.dll") $toolsOut
+Copy-Item (Join-Path $PSScriptRoot "tools\unicorn\Unicorn.psm1") $toolsOut
+Copy-Item (Join-Path $PSScriptRoot "tools\unicorn\MicroCHAP.dll") $toolsOut
 Copy-Item (Join-Path $PSScriptRoot "deploy.ps1") $OutputPath
 
 $zip = Join-Path $PSScriptRoot ("BasicCompany-Unicorn-{0}.zip" -f (Get-Date -Format "yyyyMMdd-HHmm"))

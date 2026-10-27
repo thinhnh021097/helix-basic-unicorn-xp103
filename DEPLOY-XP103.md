@@ -1,4 +1,4 @@
-# Deploy Basic Company (Unicorn) lên Sitecore XP 10.3 (không dùng Docker)
+# Deploy Basic Company (Unicorn) lên Sitecore XP 10.3 on-premise (IIS)
 
 Tài liệu này hướng dẫn clone repo, build ví dụ `helix-basic-unicorn` rồi deploy lên một máy Windows đã cài sẵn **Sitecore XP 10.3 Single (XP0)**, kể cả instance trắng mới cài, sau đó sync item bằng Unicorn. Không cần Docker hay xConnect.
 
@@ -33,7 +33,7 @@ Không đổi:
 - `Unicorn.DataProvider.10.1.config` vẫn đúng cho 10.2 và 10.3, vì cách đăng ký data provider không đổi từ 10.1.
 - Code C# build trên 10.3 không có lỗi và không có cảnh báo API obsolete.
 
-> Thư mục `docker\` và `docker-compose*.yml` vẫn là cấu hình 10.1 cũ, không còn được dùng và không được cập nhật.
+> Toàn bộ phần Docker của bản gốc (`docker\`, `docker-compose*.yml`, `Dockerfile`, `.env`, `init.ps1`) đã được xoá. Module Unicorn remote sync (`Unicorn.psm1`, `MicroCHAP.dll`) chuyển sang `tools\unicorn\`.
 
 ## 2. Yêu cầu
 

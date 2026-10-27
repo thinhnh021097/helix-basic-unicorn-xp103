@@ -1,58 +1,47 @@
-# Running the Example
+# Basic Company (Helix + Unicorn) for Sitecore XP 10.3 on-premise
 
-> **Sitecore XP 10.3 without Docker:** this example has been upgraded to Sitecore 10.3 and is deployed with
-> `build-package.ps1` + `deploy.ps1` to an existing IIS instance, then items are synced with Unicorn.
-> Clone, build, deploy, hosts file / IIS binding for `basiccompany.local`: follow [DEPLOY-XP103.md](DEPLOY-XP103.md).
-> The Docker instructions below are the original Sitecore 10.1 setup and are no longer maintained.
+The Sitecore [Helix.Examples](https://github.com/Sitecore/Helix.Examples) *helix-basic-unicorn* example, upgraded from
+Sitecore 10.1 to **Sitecore XP 10.3** and deployed to an existing **on-premise IIS** instance (XP0 / XP Single).
+No Docker and no xConnect setup are needed.
+
+Full guide (Vietnamese): [DEPLOY-XP103.md](DEPLOY-XP103.md). It covers the changes from the original example,
+the hosts file / IIS binding for `basiccompany.local`, post-deploy steps and troubleshooting.
 
 ## Prerequisites
 
-Ensure you have followed the steps listed on the [installation documentation](https://sitecore.github.io/Helix.Examples/install.html).
+- Sitecore XP 10.3.x installed with SIF (XP0 / XP Single) and Solr. A blank instance is enough.
+- Visual Studio 2019/2022 or Build Tools with the *ASP.NET and web development* workload, .NET Framework 4.8 Developer Pack.
+- Access to `api.nuget.org` and `nuget.sitecore.com`.
+- PowerShell 5.1 run as Administrator.
 
-The Helix examples assume you have some experience with (or at least an understanding of) Docker container-based Sitecore development. For more information, see the [Sitecore Containers Documentation](https://containers.doc.sitecore.com).
+## Quick start
 
-## Initialize
-
-Open a PowerShell administrator prompt and run the following command, replacing the `-LicenseXmlPath` with the location of your Sitecore license file.
-
-```
-.\init.ps1 -LicenseXmlPath C:\License\license.xml
-```
-
-You can also set the Sitecore admin password using the `-SitecoreAdminPassword` parameter (default is "b").
-
-This will perform any necessary preparation steps, such as populating the Docker Compose environment (.env) file, configuring certificates, and adding hosts file entries.
-
-## Build the solution and start Sitecore
-
-Run the following command in PowerShell.
-
-```
-docker-compose up -d
+```powershell
+git clone https://github.com/thinhnh021097/helix-basic-unicorn-xp103.git C:\src\basic-company
+cd C:\src\basic-company
+.\build-package.ps1
+.\artifacts\deploy.ps1 -WebRoot C:\inetpub\wwwroot\sc103.dev.local
 ```
 
-This will download any required Docker images, build the solution and Sitecore runtime images, and then start the containers. The example uses the *Sitecore Experience Management (XM1)* topology.
+`-WebRoot` is the physical path of the Sitecore IIS site (the folder that contains `bin\Sitecore.Kernel.dll`).
+`deploy.ps1` copies the files, applies the module XDT transforms, and adds the `basiccompany.local` IIS binding and hosts file entry.
 
-Once complete, you can access the instance with the following.
+Then, once:
 
-* Sitecore Content Management: https://cm.basic-company-unicorn.localhost
-* Sitecore Identity Server: https://id.basic-company-unicorn.localhost
-* Basic Company site: https://www.basic-company-unicorn.localhost
+1. Log in to `https://<your-cm-host>/sitecore`, open `/unicorn.aspx` and click **Sync**.
+2. Publish the site (smart publish).
+3. Control Panel: **Populate Solr Managed Schema**, then rebuild `sitecore_master_index` and `sitecore_web_index`.
+4. Browse `http://basiccompany.local/`.
 
-## Publish
+When the Sitecore machine has no Visual Studio, run `build-package.ps1` on a dev machine. Copy the generated
+`BasicCompany-Unicorn-*.zip` across, extract it and run `deploy.ps1` from the extracted folder.
 
-The serialized items will automatically sync when the instance is started, but you'll need to publish them.
+## Repository layout
 
-Login to Sitecore at https://cm.basic-company-unicorn.localhost/sitecore and perform a site smart publish. Use "admin" and the password you specified on init ("b" by default).
-
-> For the _Products_ page to work, you'll also need to _Populate Solr Managed Schema_ and rebuild indexes from the Control Panel. You may also need to `docker-compose restart cd` due to workaround an issue with the Solr schema cache on CD.ad
-
-You should now be able to view the Basic Company site at https://www.basic-company-unicorn.localhost.
-
-## Stop Sitecore
-
-When you're done, stop and remove the containers using the following command.
-
-```
-docker-compose down
-```
+| Path | Contents |
+|---|---|
+| `src/` | Helix modules (Foundation / Feature / Project), each with its Unicorn `serialization` items |
+| `src/Environment/Website` | Web project that publishes all modules; `App_Config/Include/zzz/BasicCompany.Environment.config` holds per-environment settings |
+| `build-package.ps1` | Builds the solution and creates `artifacts\` plus a zip |
+| `deploy.ps1` | Deploys the package to an IIS Sitecore web root, optionally runs a Unicorn sync |
+| `tools/unicorn` | Unicorn remote sync PowerShell module (`Unicorn.psm1`, `MicroCHAP.dll`) |
